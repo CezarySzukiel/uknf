@@ -1,7 +1,7 @@
 from typing import Any
 from enum import Enum
 
-from pydantic import BaseModel, EmailStr, model_validator, Field, ConfigDict
+from pydantic import BaseModel, EmailStr, model_validator, Field, ConfigDict, field_validator
 
 from utils.sanitizer import sanitize_string
 
@@ -28,16 +28,13 @@ class Permission(str, Enum):
 
 
 class UserBase(BaseModel):
-    """Base user schema"""
     email: EmailStr
     username: str
 
-    @model_validator(mode='before')
+    @field_validator("username", mode="before")
     @classmethod
-    def validate_model(cls, data: Any) -> Any:
-        if data.get('username'):
-            data['username'] = sanitize_string(data['username'])
-        return data
+    def sanitize_username(cls, v: str) -> str:
+        return sanitize_string(v) if v else v
 
 
 class UserCreate(UserBase):

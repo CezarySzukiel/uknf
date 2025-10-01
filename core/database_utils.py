@@ -1,12 +1,24 @@
 import sqlalchemy as sa
 from sqlalchemy.exc import SQLAlchemyError
 
-from database import engine, Base
+from core.database import engine, Base
+
+from models.user import User
 
 
 def init_db():
     """Create the database tables."""
+
     Base.metadata.create_all(bind=engine)
+
+
+def check_connection():
+    try:
+        with engine.connect() as conn:
+            conn.execute(sa.text("SELECT 1"))
+            return True
+    except SQLAlchemyError:
+        return False
 
 
 def check_database_exists():

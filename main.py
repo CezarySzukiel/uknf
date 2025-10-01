@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-# from api import routers
+from api.users import router as users_router
 from core.config import settings
 from core.database_utils import init_database
 
@@ -12,10 +12,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
+routers = [users_router, ]
+
 # add_middleware(app)
 
-# for router in routers:
-#     app.include_router(router)
+for router in routers:
+    app.include_router(router)
 
 
 @app.get("/health")
