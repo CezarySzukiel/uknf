@@ -1,0 +1,23 @@
+from sqlalchemy import Column, Integer, String, Boolean, Enum
+from sqlalchemy.orm import declarative_base
+from enum import Enum as PyEnum
+
+Base = declarative_base()
+
+
+class Role(str, PyEnum):
+    ADMIN = "admin"
+    MANAGER = "manager"
+    USER = "user"
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    username = Column(String(50), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    role = Column(Enum(Role), default=Role.USER, nullable=False)
+    permissions = Column(String)
+    disabled = Column(Boolean, default=False)
