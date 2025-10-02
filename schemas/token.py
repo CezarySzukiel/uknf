@@ -16,3 +16,9 @@ class TokenRequest(BaseModel):
     """Schema for the token request via JSON"""
     username: str
     password: str
+
+
+class TokenPair(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
