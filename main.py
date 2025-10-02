@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from api.users import router as users_router
+from api.auth import router as auth_router
 from core.config import settings
 from core.database_utils import init_database
 
@@ -12,7 +13,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-routers = [users_router, ]
+routers = [users_router, auth_router]
 
 # add_middleware(app)
 

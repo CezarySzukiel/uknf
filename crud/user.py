@@ -3,7 +3,6 @@ import json
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
-from core.database import get_db
 from core.rbac import get_permissions_for_role
 from core.security import get_password_hash
 from models.user import User, Role

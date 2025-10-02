@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 
 from core.database import get_db
+from core.rbac import get_current_active_user
 from crud.user import get_user_by_username, get_user_by_email, create_user
 from schemas.user import User, UserCreate
 
@@ -31,3 +32,11 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)) -> User
         )
 
     return create_user(user, db)
+
+@router.get(
+    "/{username}",
+    response_model=User
+)
+async def read_user(current_user: User = Depends(get_current_active_user)) -> User:
+    """Get current user."""
+    return current_user
