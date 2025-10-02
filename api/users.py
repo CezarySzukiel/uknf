@@ -34,7 +34,7 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)) -> User
     return create_user(user, db)
 
 @router.get(
-    "/{username}",
+    "/me",
     response_model=User
 )
 async def read_user(current_user: User = Depends(get_current_active_user)) -> User:

@@ -1,8 +1,10 @@
 from fastapi import Depends, HTTPException, status
 from jose import jwt
 from jose.exceptions import JWTError
+from sqlalchemy.orm import Session
 
 from core.config import settings
+from core.database import get_db
 from core.security import oauth2_scheme
 from schemas.token import TokenData
 from schemas.user import Role, Permission, User
@@ -36,19 +38,20 @@ def get_permissions_for_role(role):
     return ROLE_PERMISSIONS.get(role, [])
 
 
-async def _get_user_by_username(username: str) -> User | None:
+async def _get_user_by_username(username: str, db: Session) -> User | None:
     """Lazily import and call the user module function"""
     global _user_module
+    print("*-" * 50)
+    print(db)
+    print("*-" * 50)
     if _user_module is None:
-        import models.user as user_module
+        import crud.user as user_module
         _user_module = user_module
 
-    return await _user_module.get_user_by_username(username)
+    return _user_module.get_user_by_username(username, db)
 
 
-# todo przeanalizować algorithm - czy argon2 z rbac ma znaczenie?, ustawić zmienne środowiskowe
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db())):
     """Get the current user from a JWT token."""
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -66,7 +69,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credential_exception
 
-    user = await _get_user_by_username(token_data.username)
+    user = await _get_user_by_username(token_data.username, db)
     if user is None:
         raise credential_exception
     return user
