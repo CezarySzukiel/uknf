@@ -137,3 +137,20 @@ def remove_user_permission(user_id: int, permission: Permission, db: Session) ->
         db.refresh(user)
 
     return user
+
+
+def delete_user(user_id: int, db: Session) -> bool:
+    """Delete a user and their widgets"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return False
+
+    if user.role == Role.ADMIN:
+        admin_count = db.query(User).filter(User.role == Role.ADMIN).count()
+        if admin_count <= 1:
+            return False
+
+    db.delete(user)
+    db.commit()
+
+    return True

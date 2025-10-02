@@ -6,7 +6,7 @@ from typing import Annotated
 from core.database import get_db
 from core.rbac import get_current_active_user, has_permission, require_permission
 from crud.user import get_user_by_username, get_user_by_email, create_user, update_user, get_all_users, \
-    update_user_role, get_user_by_id, update_user_status, add_user_permission, remove_user_permission
+    update_user_role, get_user_by_id, update_user_status, add_user_permission, remove_user_permission, delete_user
 from schemas.user import User, UserCreate, UserUpdate, Permission, Role
 
 router = APIRouter(
@@ -120,6 +120,7 @@ async def read_user(
 
     return user
 
+
 @router.patch(
     "/{user_id}/status",
     response_model=User,
@@ -174,3 +175,26 @@ async def remove_permission(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
     return user
+
+
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_user_endpoint(
+        user_update: UserUpdate,
+        user_id: str = Path(..., title="The ID of the user to delete."),
+        current_user: User = Depends(get_current_active_user),
+        db: Session = Depends(get_db)
+):
+    if str(current_user.id) != user_id and not has_permission(current_user, Permission.UPDATE_USER):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions to update this user"
+        )
+    deleted = delete_user(int(user_id), db)
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    return None
