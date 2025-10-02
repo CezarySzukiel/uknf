@@ -33,6 +33,7 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)) -> User
 
     return create_user(user, db)
 
+
 @router.get(
     "/me",
     response_model=User

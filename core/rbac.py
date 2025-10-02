@@ -41,9 +41,6 @@ def get_permissions_for_role(role):
 async def _get_user_by_username(username: str, db: Session) -> User | None:
     """Lazily import and call the user module function"""
     global _user_module
-    print("*-" * 50)
-    print(db)
-    print("*-" * 50)
     if _user_module is None:
         import crud.user as user_module
         _user_module = user_module
@@ -51,7 +48,7 @@ async def _get_user_by_username(username: str, db: Session) -> User | None:
     return _user_module.get_user_by_username(username, db)
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db())):
+async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
     """Get the current user from a JWT token."""
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
