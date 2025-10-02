@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, Enum
+from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.types import JSON
 from enum import Enum as PyEnum
 
@@ -19,5 +20,5 @@ class User(Base):
     username = Column(String(50), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     role = Column(Enum(Role), default=Role.USER, nullable=False)
-    permissions = Column(JSON, nullable=False, default=list)
+    permissions = Column(MutableList.as_mutable(JSON), default=list, nullable=False)
     disabled = Column(Boolean, default=False)

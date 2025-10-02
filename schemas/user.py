@@ -1,6 +1,6 @@
 from typing import Any
 from enum import Enum
-
+from sqlalchemy.ext.mutable import MutableList
 from pydantic import BaseModel, EmailStr, model_validator, Field, ConfigDict, field_validator
 
 from utils.sanitizer import sanitize_string
