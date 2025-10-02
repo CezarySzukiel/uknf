@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Path
 from sqlalchemy.orm import Session
 from fastapi import Depends
 
 from core.database import get_db
-from core.rbac import get_current_active_user
-from crud.user import get_user_by_username, get_user_by_email, create_user
-from schemas.user import User, UserCreate
+from core.rbac import get_current_active_user, has_permission
+from crud.user import get_user_by_username, get_user_by_email, create_user, update_user
+from schemas.user import User, UserCreate, UserUpdate, Permission
 
 router = APIRouter(
     prefix="/users",
@@ -41,3 +41,27 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)) -> User
 async def read_user(current_user: User = Depends(get_current_active_user)) -> User:
     """Get current user."""
     return current_user
+
+
+@router.patch("/{user_id}", response_model=User)
+async def update_user_details(
+        user_update: UserUpdate,
+        user_id: str = Path(..., title="The ID of the user to update."),
+        current_user: User = Depends(get_current_active_user),
+        db: Session = Depends(get_db)
+):
+    if str(current_user.id) != user_id and not has_permission(current_user, Permission.UPDATE_USER):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions to update this user"
+        )
+
+    try:
+        updated_user = update_user(int(user_id), user_update, db)
+        if not updated_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            )
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

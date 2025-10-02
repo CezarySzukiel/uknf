@@ -76,3 +76,11 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if current_user.disabled:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     return current_user
+
+
+def has_permission(user: User, required_permission: Permission) -> bool:
+    """Check if a user has a specific permission."""
+    role_permission = ROLE_PERMISSIONS.get(user.role) if user.role else []
+    all_permissions = set(role_permission + user.permissions)
+
+    return required_permission in all_permissions
