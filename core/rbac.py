@@ -84,3 +84,15 @@ def has_permission(user: User, required_permission: Permission) -> bool:
     all_permissions = set(role_permission + user.permissions)
 
     return required_permission in all_permissions
+
+
+def require_permission(permission: Permission):
+    async def permission_dependencies(current_user: User = Depends(get_current_active_user)):
+        if not has_permission(current_user, permission):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient permissions"
+            )
+        return current_user
+
+    return permission_dependencies

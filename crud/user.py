@@ -1,12 +1,12 @@
 import json
-
+from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
 from core.rbac import get_permissions_for_role
 from core.security import get_password_hash
 from models.user import User, Role
-from schemas.user import UserCreate, UserUpdate
+from schemas.user import UserCreate, UserUpdate, Permission
 
 
 def get_user_by_username(username: str, db: Session) -> User | None:
@@ -70,5 +70,70 @@ def update_user(user_id: int, user_update: UserUpdate, db: Session) -> User | No
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    return user
+
+
+def get_all_users(db: Session, skip: int = 0, limit: int = 100) -> list[User]:
+    """Get all users (for admin purposes)"""
+    return db.query(User).offset(skip).limit(limit).all()
+
+
+def update_user_role(user_id: int, role: Role, db: Session) -> User | None:
+    """Update a user's role"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+
+    permissions = get_permissions_for_role(role)
+
+    user.role = role
+    user.permissions = permissions
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
+def update_user_status(user_id: int, disabled: bool, db: Session) -> bool:
+    """Update a user's disabled status"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return False
+
+    user.disabled = disabled
+    db.commit()
+    return True
+
+
+def add_user_permission(user_id: int, permission: Permission, db: Session) -> User | None:
+    """Add a permission to a user"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+
+    current_permissions = user.permissions or []
+    if permission not in current_permissions:
+        current_permissions.append(permission)
+        user.permissions = current_permissions
+        db.commit()
+        db.refresh(user)
+
+    return user
+
+
+def remove_user_permission(user_id: int, permission: Permission, db: Session) -> User | None:
+    """Remove a permission from a user"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+
+    current_permissions = user.permissions or []
+    perm_value = permission.value
+    if permission in current_permissions:
+        current_permissions.remove(perm_value)
+        user.permissions = list(current_permissions)
+        db.commit()
+        db.refresh(user)
 
     return user
