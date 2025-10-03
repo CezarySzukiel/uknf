@@ -182,7 +182,6 @@ async def remove_permission(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_user_endpoint(
-        user_update: UserUpdate,
         user_id: str = Path(..., title="The ID of the user to delete."),
         current_user: User = Depends(get_current_active_user),
         db: Session = Depends(get_db)

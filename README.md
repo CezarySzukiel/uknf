@@ -1,2 +1,4 @@
+uv sync
+source .venv/bin/activate
 python -m core.database_utils
 uvicorn main:app --reload --host 127.0.0.1 --port 8000
