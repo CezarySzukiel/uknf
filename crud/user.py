@@ -1,5 +1,3 @@
-import json
-from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
@@ -66,7 +64,6 @@ def update_user(user_id: int, user_update: UserUpdate, db: Session) -> User | No
     if user_update.password is not None:
         user.password_hash = get_password_hash(user_update.password)
 
-    # Zapis do bazy
     db.add(user)
     db.commit()
     db.refresh(user)
