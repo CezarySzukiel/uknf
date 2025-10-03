@@ -117,7 +117,25 @@ def test_add_user_permission(test_users, db):
 
 def test_remove_user_permission(test_users, db):
     user = get_user_by_id(3, db)  # admin user
-    permission_to_remove = Permission("delete_user")
-    # updated_user = remove_user_permission(user.id,  "delete_user", db)
+    permission_to_remove = Permission.DELETE_USER
+    assert permission_to_remove in user.permissions
+    updated_user = remove_user_permission(user.id, permission_to_remove, db)
     updated_user_ = get_user_by_id(user.id, db)
+    assert permission_to_remove not in updated_user.permissions
+    assert updated_user == updated_user_
 
+
+def test_delete_user(test_users, db):
+    user = get_user_by_id(1, db)
+    result = delete_user(user.id, db)
+    assert result is True
+    deleted_user = get_user_by_id(user.id, db)
+    assert deleted_user is None
+
+
+def test_delete_last_admin(test_users, db):
+    admin_user = get_user_by_username("admin1", db)
+    result = delete_user(admin_user.id, db)
+    assert result is False
+    existing_admin = get_user_by_id(admin_user.id, db)
+    assert existing_admin is not None

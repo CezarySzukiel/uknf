@@ -10,5 +10,5 @@ wheels/
 .venv
 .idea
 .vscode
-db.sqlite3
+db.sqlite*
 .env

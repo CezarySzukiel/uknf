@@ -5,6 +5,7 @@ from core.database import Base
 from core.security import get_password_hash
 from models.user import User, Role
 from schemas.user import User as UserSchema
+from core.rbac import get_permissions_for_role
 
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
@@ -32,7 +33,7 @@ def test_users(db):
             username="user1",
             password_hash=get_password_hash("password123"),
             role=Role.USER,
-            permissions=[],
+            permissions=get_permissions_for_role(Role.USER),
             disabled=False,
         ),
         User(
@@ -40,7 +41,7 @@ def test_users(db):
             username="manager1",
             password_hash=get_password_hash("password123"),
             role=Role.MANAGER,
-            permissions=[],
+            permissions=get_permissions_for_role(Role.MANAGER),
             disabled=False,
         ),
         User(
@@ -48,7 +49,7 @@ def test_users(db):
             username="admin1",
             password_hash=get_password_hash("password123"),
             role=Role.ADMIN,
-            permissions=[],
+            permissions=get_permissions_for_role(Role.ADMIN),
             disabled=False,
         ),
     ]
