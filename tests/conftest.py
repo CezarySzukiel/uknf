@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker, Session
 from core.database import Base
 from core.security import get_password_hash
 from models.user import User, Role
-from schemas.user import User as UserSchema
 from core.rbac import get_permissions_for_role
 
 TEST_DATABASE_URL = "sqlite:///:memory:"
@@ -59,7 +58,6 @@ def test_users(db):
     for u in users:
         db.refresh(u)
 
-    # zwróć np. dict dla wygodnego dostępu w testach
     return {
         "user": users[0],
         "manager": users[1],

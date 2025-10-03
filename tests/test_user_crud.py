@@ -11,8 +11,8 @@ def test_get_user_by_username(test_users, db):
 
 
 def test_get_user_by_email(test_users, db):
-    user = get_user_by_email("test@example.com", db)
-    assert user.email == "test@example.com"
+    user = get_user_by_email("user@example.com", db)
+    assert user.email == "user@example.com"
 
 
 def test_create_user(db):
@@ -47,7 +47,7 @@ def test_update_user_username(test_users, db):
 
 
 def test_update_user_email(test_users, db):
-    user = get_user_by_email("test@example.com", db)
+    user = get_user_by_email("user@example.com", db)
     user_to_save = UserUpdate(email="new@email.com")
     updated_user = update_user(user.id, user_to_save, db)
     updated_user_ = get_user_by_id(user.id, db)
